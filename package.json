@@ -5,7 +5,7 @@
     "description": "CLI tester for X402 endpoints",
     "repository": {
         "type": "git",
-        "url": "https://github.com/Swader/x402-cli.git"
+        "url": "https://github.com/Swader/x402-cli"
     },
     "type": "module",
     "bin": {
