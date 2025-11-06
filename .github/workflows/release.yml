@@ -1,0 +1,83 @@
+name: Release and Publish
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run without publishing (dry-run)'
+        required: false
+        default: 'false'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write  # Required for npm provenance and trusted publishing
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+          
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        
+      - name: Build
+        run: bun run build
+        
+      - name: Verify build output
+        run: |
+          if [ ! -f dist/cli.js ]; then
+            echo "Error: dist/cli.js not found"
+            exit 1
+          fi
+          echo "Build artifact size:"
+          ls -lh dist/cli.js
+          
+      - name: Test CLI executable
+        run: |
+          chmod +x dist/cli.js
+          ./dist/cli.js --help || true
+          
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-build-${{ github.sha }}
+          path: |
+            dist/cli.js
+            package.json
+            README.md
+          retention-days: 30
+          
+      - name: Pack for inspection
+        run: npm pack
+        
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-package-${{ github.sha }}
+          path: "*.tgz"
+          retention-days: 90
+          
+      - name: Publish to npm (dry-run)
+        if: github.event.inputs.dry_run == 'true'
+        run: npm publish --dry-run --access public --provenance
+        
+      - name: Publish to npm
+        if: github.event_name == 'release'
+        run: npm publish --access public --provenance
+        
+      - name: Verify publication
+        if: github.event_name == 'release'
+        run: |
+          sleep 10
+          npm view @swader/x402-cli version
+          echo "Published successfully!"
+

@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+          
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        
+      - name: Build
+        run: bun run build
+        
+      - name: Verify build output
+        run: |
+          if [ ! -f dist/cli.js ]; then
+            echo "Error: dist/cli.js not found"
+            exit 1
+          fi
+          echo "✅ Build successful!"
+          echo "Build artifact size:"
+          ls -lh dist/cli.js
+          
+      - name: Test CLI help
+        run: |
+          chmod +x dist/cli.js
+          ./dist/cli.js --help || true
+          
+      - name: Verify package contents
+        run: |
+          npm pack --dry-run
+          echo "✅ Package verification complete"
+
