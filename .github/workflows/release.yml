@@ -26,6 +26,21 @@ jobs:
         with:
           bun-version: latest
           
+      - name: Setup Node.js (for npm)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Verify npm version and OIDC support
+        run: |
+          npm --version
+          echo "Checking for OIDC environment variables..."
+          if [ -n "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+            echo "✓ OIDC token URL is available"
+          else
+            echo "✗ OIDC token URL is NOT available"
+          fi
+          
       - name: Install dependencies
         run: bun install --frozen-lockfile
         
