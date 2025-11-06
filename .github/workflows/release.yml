@@ -31,7 +31,6 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
-          always-auth: true
 
       - name: Upgrade npm (ensure latest provenance support)
         run: npm install -g npm@latest
@@ -101,6 +100,7 @@ jobs:
         if: github.event_name == 'release'
         run: |
           sleep 10
-          npm view @Swader/x402-cli version
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          npm view "$PACKAGE_NAME" version
           echo "Published successfully!"
 
