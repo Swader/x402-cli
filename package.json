@@ -3,6 +3,7 @@
     "version": "0.1.3",
     "author": "https://github.com/swader",
     "description": "CLI tester for X402 endpoints",
+    "repository": "https://github.com/Swader/x402-cli",
     "type": "module",
     "bin": {
         "x402": "dist/cli.js"
