@@ -101,6 +101,6 @@ jobs:
         if: github.event_name == 'release'
         run: |
           sleep 10
-          npm view @swader/x402-cli version
+          npm view @Swader/x402-cli version
           echo "Published successfully!"
 
