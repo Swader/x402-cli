@@ -30,6 +30,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          always-auth: true
+
+      - name: Upgrade npm (ensure latest provenance support)
+        run: npm install -g npm@latest
       
       - name: Verify npm version and OIDC support
         run: |
@@ -87,6 +92,9 @@ jobs:
         
       - name: Publish to npm
         if: github.event_name == 'release'
+        env:
+          NPM_CONFIG_PROVENANCE: 'true'
+          NPM_CONFIG_REGISTRY: 'https://registry.npmjs.org'
         run: npm publish --access public --provenance
         
       - name: Verify publication
